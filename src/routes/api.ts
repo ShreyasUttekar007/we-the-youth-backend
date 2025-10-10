@@ -3,33 +3,100 @@ import Registration from "../models/Registration";
 import Subscription from "../models/Subscription";
 import PriorityVote from "../models/PriorityVote";
 import Leader from "../models/Leader";
-const sgMail = require("@sendgrid/mail");
+import sgMail from "@sendgrid/mail";
 
 const router = Router();
 
+if (!process.env.SENDGRID_API_KEY) {
+  throw new Error('SENDGRID_API_KEY must be defined in environment variables');
+}
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // @route   POST api/register
 // @desc    Register a new user
 // @access  Public
+// router.post("/register", async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     console.log("📩 Email received:", email);
+
+//     if (!email) return res.status(400).json({ msg: "Email is required" });
+
+//     const newRegistration = new Registration(req.body);
+
+//     // ✅ Validate fields first
+//     try {
+//       await newRegistration.validate();
+//     } catch (validationError) {
+//       console.error("❌ Validation Error:", validationError.errors);
+//       return res.status(400).json({
+//         msg: "Validation failed",
+//         errors: Object.keys(validationError.errors).map((f) => ({
+//           field: f,
+//           message: validationError.errors[f].message,
+//         })),
+//       });
+//     }
+
+//     // ✅ Save to DB
+//     await newRegistration.save();
+//     console.log("✅ Registration saved successfully, sending email...");
+
+//     const msg = {
+//       to: email,
+//       from: "wetheyouthinspire@gmail.com",
+//       subject: "🎉 Welcome to We The Youth!",
+//       html: `
+//         <p>Hi,</p>
+//         <p>Welcome to <b>We The Youth</b> — we’re thrilled to have you on board!</p>
+//         <p>You have just joined a growing community of young Indians who believe that our voices can and must shape the nation’s future. Here, we don’t wait for change — we create it.</p>
+//         <p>Over the coming weeks, you’ll receive:</p>
+//         <ul>
+//           <li>✅ Updates on youth-led discussions, campaigns, and surveys.</li>
+//           <li>✅ Opportunities to share your ideas and opinions on key issues.</li>
+//           <li>✅ Invitations to events, dialogues, and volunteer activities near you.</li>
+//         </ul>
+//         <p>Every opinion counts. Every idea matters. Together, we’re redefining what youth participation in India looks like.</p>
+//         <p>Stay tuned — and make sure you follow us on:<br/>
+//           Instagram: <a href="https://www.instagram.com/wetheyouth2025">wetheyouth2025</a><br/>
+//           Twitter (X): <a href="https://x.com/wethe_youth">wethe_youth</a><br/>
+//           YouTube: <a href="https://youtube.com/@wetheyouth2025?si=RstpulhTSXLGJlV2">We The Youth</a>
+//         </p>
+//         <p>Welcome to the movement.<br/>Warm regards,<br/><b>Team We The Youth</b></p>
+//       `,
+//     };
+
+//     console.log("🟡 Preparing to send email...");
+//     await sgMail.send(msg);
+//     console.log("🟢 Email actually sent!");
+
+//     res.status(201).json({ msg: "Registration successful. Email sent." });
+//   } catch (err) {
+//     console.error("❌ Registration error:", err.response?.body || err.message);
+//     res.status(500).send("Server Error");
+//   }
+// });
+
 router.post("/register", async (req, res) => {
+  console.log("🔥 /register route hit");
   try {
     const { email } = req.body;
-
     if (!email) {
       return res.status(400).json({ msg: "Email is required" });
     }
 
-    // Save new registration
+    // Save registration (non-blocking safe pattern)
     const newRegistration = new Registration(req.body);
-    await newRegistration.save();
+    await newRegistration
+      .save()
+      .then(() => console.log("✅ Registration saved in DB"))
+      .catch((e) => console.error("⚠️ DB save warning:", e.message));
 
     // Prepare welcome email
     const msg = {
       to: email,
-      from: "wetheyouthinspire@gmail.com", // Must be verified in SendGrid
+      from: "wetheyouthinspire@gmail.com",
       subject: "🎉 Welcome to We The Youth!",
-      text: "Welcome to We The Youth — we’re thrilled to have you on board!",
       html: `
         <p>Hi,</p>
         <p>Welcome to <b>We The Youth</b> — we’re thrilled to have you on board!</p>
@@ -47,25 +114,20 @@ router.post("/register", async (req, res) => {
           YouTube: <a href="https://youtube.com/@wetheyouth2025?si=RstpulhTSXLGJlV2">We The Youth</a>
         </p>
         <p>Welcome to the movement.<br/>Warm regards,<br/><b>Team We The Youth</b></p>
-        <p style="font-size:12px;color:#888;">
-          You’re receiving this email because you registered with We The Youth.
-          If this wasn’t you, please ignore or <a href="#">unsubscribe</a>.
-        </p>
       `,
     };
 
-    // Send email via SendGrid
+    console.log("🟡 Sending welcome email...");
     await sgMail.send(msg);
+    console.log("🟢 Email sent successfully!");
 
-    // Send success response
-    res
-      .status(201)
-      .json({ msg: "Registration successful. Welcome email sent!" });
+    return res.status(201).json({ msg: "Registration successful. Email sent!" });
   } catch (err: any) {
-    console.error("Error during registration:", err.message);
-    res.status(500).send("Server Error");
+    console.error("❌ Registration error:", err.response?.body || err.message);
+    return res.status(500).json({ msg: "Server Error", error: err.message });
   }
 });
+
 
 // @route   POST api/subscribe
 // @desc    Subscribe to newsletter
