@@ -15,67 +15,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // @route   POST api/register
 // @desc    Register a new user
 // @access  Public
-// router.post("/register", async (req, res) => {
-//   try {
-//     const { email } = req.body;
-//     console.log("📩 Email received:", email);
-
-//     if (!email) return res.status(400).json({ msg: "Email is required" });
-
-//     const newRegistration = new Registration(req.body);
-
-//     // ✅ Validate fields first
-//     try {
-//       await newRegistration.validate();
-//     } catch (validationError) {
-//       console.error("❌ Validation Error:", validationError.errors);
-//       return res.status(400).json({
-//         msg: "Validation failed",
-//         errors: Object.keys(validationError.errors).map((f) => ({
-//           field: f,
-//           message: validationError.errors[f].message,
-//         })),
-//       });
-//     }
-
-//     // ✅ Save to DB
-//     await newRegistration.save();
-//     console.log("✅ Registration saved successfully, sending email...");
-
-//     const msg = {
-//       to: email,
-//       from: "wetheyouthinspire@gmail.com",
-//       subject: "🎉 Welcome to We The Youth!",
-//       html: `
-//         <p>Hi,</p>
-//         <p>Welcome to <b>We The Youth</b> — we’re thrilled to have you on board!</p>
-//         <p>You have just joined a growing community of young Indians who believe that our voices can and must shape the nation’s future. Here, we don’t wait for change — we create it.</p>
-//         <p>Over the coming weeks, you’ll receive:</p>
-//         <ul>
-//           <li>✅ Updates on youth-led discussions, campaigns, and surveys.</li>
-//           <li>✅ Opportunities to share your ideas and opinions on key issues.</li>
-//           <li>✅ Invitations to events, dialogues, and volunteer activities near you.</li>
-//         </ul>
-//         <p>Every opinion counts. Every idea matters. Together, we’re redefining what youth participation in India looks like.</p>
-//         <p>Stay tuned — and make sure you follow us on:<br/>
-//           Instagram: <a href="https://www.instagram.com/wetheyouth2025">wetheyouth2025</a><br/>
-//           Twitter (X): <a href="https://x.com/wethe_youth">wethe_youth</a><br/>
-//           YouTube: <a href="https://youtube.com/@wetheyouth2025?si=RstpulhTSXLGJlV2">We The Youth</a>
-//         </p>
-//         <p>Welcome to the movement.<br/>Warm regards,<br/><b>Team We The Youth</b></p>
-//       `,
-//     };
-
-//     console.log("🟡 Preparing to send email...");
-//     await sgMail.send(msg);
-//     console.log("🟢 Email actually sent!");
-
-//     res.status(201).json({ msg: "Registration successful. Email sent." });
-//   } catch (err) {
-//     console.error("❌ Registration error:", err.response?.body || err.message);
-//     res.status(500).send("Server Error");
-//   }
-// });
 
 router.post("/register", async (req, res) => {
   console.log("🔥 /register route hit");
