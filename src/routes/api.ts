@@ -7,10 +7,14 @@ import sgMail from "@sendgrid/mail";
 
 const router = Router();
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error('SENDGRID_API_KEY must be defined in environment variables');
+const apiKey = process.env.SENDGRID_API_KEY;
+
+if (!apiKey) {
+  console.warn("⚠️ Warning: SENDGRID_API_KEY is not defined — emails will not be sent.");
+} else {
+  sgMail.setApiKey(apiKey);
 }
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 
 // @route   POST api/register
 // @desc    Register a new user
