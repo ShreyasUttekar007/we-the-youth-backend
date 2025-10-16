@@ -7,6 +7,8 @@ import apiRoutes from "./routes/api";
 
 // ✅ Ensure .env is always loaded from project root (works in src/, dist/, ts-node, or node)
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+console.log("📧 SENDGRID KEY FOUND:", process.env.SENDGRID_API_KEY ? "✅" : "❌ MISSING");
+
 
 const app = express();
 const port = process.env.PORT || 5000;
