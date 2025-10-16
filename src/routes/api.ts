@@ -5,6 +5,12 @@ import PriorityVote from "../models/PriorityVote";
 import Leader from "../models/Leader";
 import sgMail from "@sendgrid/mail";
 
+import dotenv from "dotenv";
+import path from "path";
+
+// Force load .env from root even when built into dist/
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
 const router = Router();
 
 const apiKey = process.env.SENDGRID_API_KEY;
